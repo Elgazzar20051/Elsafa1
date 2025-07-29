@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>استعلام المخزون</title>
-  <link rel="manifest" href="manifest.json">
   <style>
     body {
       font-family: sans-serif;
@@ -36,7 +35,7 @@
   <div class="result" id="result">اكتب اسم الصنف للبحث</div>
 
   <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROR9WEH-QRJh56mNUR7Eet_kky-KUGt2Zqk6Lih4h1Amsu782gVYwjObXjVbZ7yibQbjIkDKVuHSIH/pub?output=tsv";
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1JGMvB-iT9FL686QWvP_pvvKuX04fh1HLj_s699O9XP0/export?format=tsv";
 
     function normalize(text) {
       return text.toLowerCase()
