@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استعلام المخزون</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f1f1f1;
+      direction: rtl;
+    }
+    h1 {
+      color: #00695c;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    .result {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>استعلام المخزون</h1>
+  <input type="text" id="search" placeholder="اكتب اسم الصنف...">
+  <div class="result" id="result">اكتب اسم الصنف للبحث</div>
+
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vROR9WEH-QRJh56mNUR7Eet_kky-KUGt2Zqk6Lih4h1Amsu782gVYwjObXjVbZ7yibQbjIkDKVuHSIH/pub?output=tsv";
+
+    function normalize(text) {
+      return text.toLowerCase()
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/[ؤئ]/g, 'و')
+        .replace(/ى/g, 'ي')
+        .replace(/[^\u0621-\u064A0-9]/g, '');
+    }
+
+    async function fetchData() {
+      const res = await fetch(sheetURL);
+      const text = await res.text();
+      const rows = text.trim().split("\n").map(r => r.split("\t"));
+      return rows;
+    }
+
+    document.getElementById("search").addEventListener("input", async function() {
+      const term = normalize(this.value);
+      const resultBox = document.getElementById("result");
+      resultBox.innerHTML = "جاري البحث...";
+
+      if (!term || term.length < 2) {
+        resultBox.innerHTML = "اكتب اسم الصنف للبحث";
+        return;
+      }
+
+      const data = await fetchData();
+      const header = data[0];
+      const rows = data.slice(1);
+
+      const match = rows.find(r => normalize(r[0]).includes(term));
+      if (match) {
+        const name = match[0];
+        const quantity = match[1];
+        const price = match[2];
+        const status = parseFloat(quantity) > 0 ? "متاح" : "غير متاح";
+        resultBox.innerHTML = `
+          <strong>الصنف:</strong> ${name}<br>
+          <strong>الحالة:</strong> ${status}<br>
+          <strong>السعر:</strong> ${price} جنيه
+        `;
+      } else {
+        resultBox.innerHTML = "الصنف غير متوفر حالياً.";
+      }
+    });
+  </script>
+</body>
+</html>
